@@ -132,6 +132,8 @@ function BeforePlugin() {
    */
 
   function onCompositionEnd(event, change, editor) {
+    // triggering a forced update here will close the Android IME
+    if (IS_ANDROID) return
     const n = compositionCount
 
     // The `count` check here ensures that if another composition starts
@@ -382,6 +384,14 @@ function BeforePlugin() {
 
   function onKeyDown(event, change, editor) {
     if (editor.props.readOnly) return true
+
+    // ignore garbage 229 events sent during composition
+    // event.isComposing doesn't exist in react pseudo events
+    // https://github.com/facebook/react/issues/13104
+    if (event.key === 'Unidentified') {
+      event.preventDefault()
+      return true
+    }
 
     // When composing, we need to prevent all hotkeys from executing while
     // typing. However, certain characters also move the selection before

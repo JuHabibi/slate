@@ -130,7 +130,7 @@ class Content extends React.Component {
    */
 
   getSnapshotBeforeUpdate() {
-    this.updateSelection() // Android changes are debounced and the range needs to be cached
+    // Android changes are debounced and the range needs to be cached
     if (!IS_ANDROID) return null
     const selection = window.getSelection()
     if (selection.rangeCount !== 1) return null
@@ -142,6 +142,7 @@ class Content extends React.Component {
       endContainer: range.endContainer,
     }
   }
+
   componentDidUpdate = (prevProps, prevState, snapshot) => {
     if (snapshot) {
       const selection = window.getSelection()
@@ -405,7 +406,7 @@ class Content extends React.Component {
 
         editor.change(change => {
           if (change.value.isInVoid) {
-            change.moveToStartOfNextText()
+            change.collapseToStartOfNextText()
           } else {
             change.splitBlockAtRange(range)
           }
@@ -487,7 +488,7 @@ class Content extends React.Component {
     const { value, stack } = editor
     const Container = tagName
     const { document, selection, decorations } = value
-    const indexes = document.getSelectionIndexes(selection)
+    const indexes = document.getSelectionIndexes(selection, selection.isFocused)
     const decs = document.getDecorations(stack).concat(decorations || [])
     const childrenDecorations = getChildrenDecorations(document, decs)
 
@@ -570,7 +571,7 @@ class Content extends React.Component {
   renderNode = (child, isSelected, decorations) => {
     const { editor, readOnly } = this.props
     const { value } = editor
-    const { document, isFocused } = value
+    const { document } = value
 
     return (
       <Node
@@ -578,7 +579,6 @@ class Content extends React.Component {
         editor={editor}
         decorations={decorations}
         isSelected={isSelected}
-        isFocused={isFocused && isSelected}
         key={child.key}
         node={child}
         parent={document}

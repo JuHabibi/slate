@@ -164,6 +164,8 @@ function BeforePlugin() {
    */
 
   function onCompositionStart(event, change, editor) {
+    // Overriding Android native composition logic results in errors
+    if (IS_ANDROID) return
     isComposing = true
     compositionCount++
 

@@ -20,9 +20,10 @@ const config = {
   },
   devtool: IS_PROD ? 'source-map' : 'inline-source-map',
   devServer: {
+    host: '0.0.0.0',
     contentBase: './examples',
     publicPath: '/',
-    inline:true,
+    inline: true,
     hot: true,
     port: 4545,
   },

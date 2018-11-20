@@ -6,6 +6,7 @@ import {
   IS_FIREFOX,
   IS_IE,
   IS_IOS,
+  IS_ANDROID,
   HAS_INPUT_EVENTS_LEVEL_2,
 } from 'slate-dev-environment'
 
@@ -393,7 +394,7 @@ function BeforePlugin() {
     // elements which will editor the DOM and cause our value to be out of sync,
     // so they need to always be prevented.
     if (
-      !IS_IOS &&
+      (!IS_IOS || !IS_ANDROID) &&
       (Hotkeys.isBold(event) ||
         Hotkeys.isDeleteBackward(event) ||
         Hotkeys.isDeleteForward(event) ||

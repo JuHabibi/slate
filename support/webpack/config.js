@@ -22,7 +22,9 @@ const config = {
   devServer: {
     contentBase: './examples',
     publicPath: '/',
+    inline:true,
     hot: true,
+    port: 4545,
   },
   module: {
     rules: [

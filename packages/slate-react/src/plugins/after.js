@@ -3,7 +3,7 @@ import Debug from 'debug'
 import Hotkeys from 'slate-hotkeys'
 import Plain from 'slate-plain-serializer'
 import getWindow from 'get-window'
-import { IS_IOS } from 'slate-dev-environment'
+import { IS_IOS, IS_ANDROID } from 'slate-dev-environment'
 
 import cloneFragment from '../utils/clone-fragment'
 import findDOMNode from '../utils/find-dom-node'
@@ -21,6 +21,7 @@ import setEventTransfer from '../utils/set-event-transfer'
  */
 
 const debug = Debug('slate:after')
+const ANDROID_KEYSTROKE_DEBOUNCE = 300
 
 /**
  * A plugin that adds the "after" browser-specific logic to the editor.
@@ -460,6 +461,27 @@ function AfterPlugin(options = {}) {
     let entire = selection
       .moveAnchorTo(point.key, start)
       .moveFocusTo(point.key, end)
+
+    if (IS_ANDROID) {
+      // Controlled contentEditables lose their selection range every render
+      // and must be updated manually (see Content#componentDidUpdate)
+      // Updating the selection causes the IME auto-suggest to recompute
+      // synchronously, causing lost input events during that recompute
+      // If device turns off IME auto-suggest, this is not needed
+      clearTimeout(isDraggingInternally)
+
+      isDraggingInternally = setTimeout(() => {
+        editor
+          .insertTextAtRange(entire, textContent, leaf.marks)
+          .select(corrected)
+
+        editor.onChange(editor)
+      }, ANDROID_KEYSTROKE_DEBOUNCE)
+    } else {
+      editor
+        .insertTextAtRange(entire, textContent, leaf.marks)
+        .select(corrected)
+    }
 
     entire = document.resolveRange(entire)
 

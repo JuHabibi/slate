@@ -4,7 +4,11 @@ import Types from 'prop-types'
 import getWindow from 'get-window'
 import warning from 'tiny-warning'
 import throttle from 'lodash/throttle'
-import { IS_FIREFOX, HAS_INPUT_EVENTS_LEVEL_2 } from 'slate-dev-environment'
+import {
+  IS_FIREFOX,
+  IS_ANDROID,
+  HAS_INPUT_EVENTS_LEVEL_2,
+} from 'slate-dev-environment'
 
 import EVENT_HANDLERS from '../constants/event-handlers'
 import Node from './node'
@@ -125,6 +129,20 @@ class Content extends React.Component {
         'beforeinput',
         this.handlers.onBeforeInput
       )
+    }
+  }
+
+  getSnapshotBeforeUpdate() {
+    // Android changes are debounced and the range needs to be cached
+    if (!IS_ANDROID) return null
+    const selection = window.getSelection()
+    if (selection.rangeCount !== 1) return null
+    const range = selection.getRangeAt(0)
+    return {
+      startOffset: range.startOffset,
+      endOffset: range.endOffset,
+      startContainer: range.startContainer,
+      endContainer: range.endContainer,
     }
   }
 
